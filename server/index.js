@@ -2,6 +2,7 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const path = require("path");
 const cors = require("cors");
+const fs = require('fs');
 
 require("dotenv").config();
 
@@ -31,15 +32,21 @@ app.post("/upload", (req, res) => {
     return res.status(400).json({ message: "No files were uploaded." });
   }
 
-  
   // The uploaded file will be available as req.files.<input_field_name>
   const uploadedFile = req.files.file;
-  
+
   if (!uploadedFile) {
-    return res.status(400).json({ message: "Invalid file key sent" });
+    return res.status(400).json({ message: "Invalid 'file' key sent" });
   }
+
+  const uploadDir = path.join(__dirname, "uploads");
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
   // Move the file to the desired directory
-  const uploadPath = path.join(__dirname, "uploads", uploadedFile.name);
+  const uploadPath = path.join(uploadDir, uploadedFile.name);
 
   uploadedFile.mv(uploadPath, (err) => {
     if (err) {
